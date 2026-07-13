@@ -1,3 +1,11 @@
+# Your real recovery input — NEVER commit this. Copy backup.example.txt to
+# backup.txt and edit the copy; the demo (testnet) lives in backup.example.txt.
+/backup.txt
+
+# Descriptor files written by --sparrow-file (reveal your addresses)
+/wallet.txt
+/*-key*.txt
+
 # Rust build output
 /target
 

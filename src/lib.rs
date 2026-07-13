@@ -4,4 +4,4 @@ pub mod backup;
 pub mod decrypt;
 pub mod config;
 pub mod derive;
-pub use derive::{generate, Output, KeyBlock};
+pub use derive::{generate, KeyBlock, Output, WalletKind};

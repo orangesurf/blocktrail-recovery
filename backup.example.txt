@@ -1,19 +1,23 @@
 # ==========================================================================
-#  BlockTrail wallet recovery — input file
+#  BlockTrail wallet recovery — EXAMPLE input file (TESTNET DEMO)
 #
-#  As shipped, this is a TESTNET DEMO so you can check the tool works.
-#  Run it as-is:
+#  This file is a demo so you can check the tool works. Run it as-is:
 #
-#      cargo run --release -- recover backup.txt
+#      cargo run --release -- recover backup.example.txt
 #
-#  You should see the first receive address:
+#  You should see the first legacy receive address:
 #      2NFLXEc5m1X2Z8NB5QTVd9KJtN8bJBqz1Xp
 #
-#  Then replace the values below with your own from your backup PDF, and
-#  change  testnet = true  to  testnet = false.
+#  To recover YOUR wallet, copy this file first, then edit the copy:
+#
+#      cp backup.example.txt backup.txt        # backup.txt is git-ignored
+#      # ...edit backup.txt with your PDF values, set  testnet = false ...
+#      cargo run --release -- recover backup.txt
+#
+#  Never put your real seed in backup.example.txt — it is tracked in git.
 #
 #  Format:  name = value    (no quotes needed).
-#  Lines starting with # are ignored.
+#  A line whose first character is # is a comment (whole-line only).
 # ==========================================================================
 
 testnet = true

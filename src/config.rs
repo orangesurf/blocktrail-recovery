@@ -1,6 +1,9 @@
 //! Parser for the recovery input file: `name = value`, one per line, no quotes.
-//! Lines starting with `#` are comments. Friendlier to hand-edit than JSON
-//! (no quotes to get smart-quoted, no commas, inline comments allowed).
+//! A line whose first non-space character is `#` is a comment. Comments are
+//! whole-line ONLY — there is no inline/trailing `#` comment, because a wallet
+//! password may legitimately contain `#`; everything after the first `=` is the
+//! literal value (leading/trailing whitespace trimmed, no quote stripping).
+//! Friendlier to hand-edit than JSON: no quotes to get smart-quoted, no commas.
 
 use anyhow::{anyhow, bail, Result};
 
@@ -35,32 +38,60 @@ pub fn parse(text: &str) -> Result<Backup> {
         // "key 9999 = tpub..." / "key9999 = tpub..."
         if keyl.starts_with("key") {
             if let Ok(key_index) = key[3..].trim().parse::<u32>() {
+                if keys.iter().any(|k| k.key_index == key_index) {
+                    bail!("line {n}: duplicate 'key {key_index}'");
+                }
                 keys.push(BlocktrailKey { key_index, pubkey: val.to_string() });
                 continue;
             }
         }
+
+        // Reject a second occurrence of any scalar setting instead of silently
+        // last-wins — a duplicate is almost always a copy-paste mistake, and
+        // silently overwriting the wrong one is how funds get missed.
+        macro_rules! set_once {
+            ($slot:ident, $value:expr) => {{
+                if $slot.is_some() {
+                    bail!("line {n}: '{keyl}' set more than once");
+                }
+                $slot = Some($value);
+            }};
+        }
+
         match keyl.as_str() {
-            "testnet" => {
-                testnet = Some(matches!(val.to_ascii_lowercase().as_str(), "true" | "1" | "yes"))
+            "testnet" => set_once!(
+                testnet,
+                match val.to_ascii_lowercase().as_str() {
+                    "true" | "1" | "yes" => true,
+                    "false" | "0" | "no" => false,
+                    // Do NOT silently default an unrecognized value to mainnet — a
+                    // testnet user's typo would otherwise derive real-network keys.
+                    other => bail!(
+                        "line {n}: testnet must be true/false (got '{other}')"
+                    ),
+                }
+            ),
+            "version" | "walletversion" => set_once!(
+                version,
+                val.parse::<u32>()
+                    .map_err(|_| anyhow!("line {n}: version must be 1, 2, or 3"))?
+            ),
+            "password" => set_once!(password, val.to_string()),
+            "primary_passphrase" | "primarypassphrase" => {
+                set_once!(primary_passphrase, val.to_string())
             }
-            "version" | "walletversion" => {
-                version = Some(
-                    val.parse::<u32>()
-                        .map_err(|_| anyhow!("line {n}: version must be 1, 2, or 3"))?,
-                )
+            "primary" | "primary_mnemonic" | "primarymnemonic" => {
+                set_once!(primary, val.to_string())
             }
-            "password" => password = Some(val.to_string()),
-            "primary_passphrase" | "primarypassphrase" => primary_passphrase = Some(val.to_string()),
-            "primary" | "primary_mnemonic" | "primarymnemonic" => primary = Some(val.to_string()),
             "encrypted_primary" | "encrypted_primary_mnemonic" | "encryptedprimarymnemonic" => {
-                encrypted_primary = Some(val.to_string())
+                set_once!(encrypted_primary, val.to_string())
             }
             "password_encrypted_secret"
             | "password_encrypted_secret_mnemonic"
             | "passwordencryptedsecretmnemonic" => {
-                password_encrypted_secret = Some(val.to_string())
+                set_once!(password_encrypted_secret, val.to_string())
             }
-            "backup" | "backup_mnemonic" | "backupmnemonic" => backup = Some(val.to_string()),
+            "backup" | "backup_mnemonic" | "backupmnemonic" => set_once!(backup, val.to_string()),
             other => bail!("line {n}: unknown setting '{other}'"),
         }
     }
