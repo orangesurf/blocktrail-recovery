@@ -1,0 +1,17 @@
+# Third-party licenses
+
+This binary links the following dependencies, each used under its own license.
+
+{{#each licenses}}
+## {{name}}{{#if version}} ({{version}}){{/if}}
+
+Used by:
+{{#each used_by}}
+- {{crate.name}} {{crate.version}}
+{{/each}}
+
+​```
+{{{text}}}
+​```
+
+{{/each}}

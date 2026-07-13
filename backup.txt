@@ -1,0 +1,40 @@
+# ==========================================================================
+#  BlockTrail wallet recovery — input file
+#
+#  As shipped, this is a TESTNET DEMO so you can check the tool works.
+#  Run it as-is:
+#
+#      cargo run --release -- recover backup.txt
+#
+#  You should see the first receive address:
+#      2NFLXEc5m1X2Z8NB5QTVd9KJtN8bJBqz1Xp
+#
+#  Then replace the values below with your own from your backup PDF, and
+#  change  testnet = true  to  testnet = false.
+#
+#  Format:  name = value    (no quotes needed).
+#  Lines starting with # are ignored.
+# ==========================================================================
+
+testnet = true
+
+# Wallet version from your PDF: 1, 2, or 3
+version = 3
+
+# Your wallet password
+password = roobsieroobs
+
+# The word lists from your PDF — each MUST stay on a single line.
+encrypted_primary = library fish steak unfair series jacket enhance unique witness session abandon ability hole spread black stuff gun country icon hair sugar mixture rib mansion neglect afraid unlock barrel today misery shift replace unusual ticket zone habit aspect globe glad find space tape remove priority describe smart annual sign direct regular can pear huge rather wish travel stomach mobile situate stand
+password_encrypted_secret = library faith derive beach blast sustain index fold actor session abandon access forest around canal theme body denial excuse believe voyage anchor state meadow assist ostrich trick lock near uniform suspect person autumn dentist rent square idle motion calm time focus help legal subject quality pupil atom weather start kite enable today primary rail flag clarify clarify syrup fee clump
+backup = snap lyrics december view youth dynamic physical shed certain govern cigar top submit measure minute flight used glass tragic basket alarm scorpion wagon oblige
+
+# BlockTrail public keys from your PDF. One line per key:  key <index> = <xpub>
+# (Your PDF may list index 0 and/or 9999 — add whichever it shows.)
+key 9999 = tpubD9q6vq9zdP3gbhpjs7n2TRvT7h4PeBhxg1Kv9jEc1XAss7429VenxvQTsJaZhzTk54gnsHRpgeeNMbm1QTag4Wf1QpQ3gy221GDuUCxgfeZ
+
+# ── VERSION 1 wallets only ────────────────────────────────────────────────
+# Delete the encrypted_primary / password_encrypted_secret lines above and use:
+#   primary = your primary seed words
+#   primary_passphrase = your wallet password
+# (keep the "backup" and "key" lines)
